@@ -1,6 +1,0 @@
-framework module ParasiteRuntime {
-  umbrella header "ParasiteRuntime.h"
-
-  export *
-  module * { export * }
-}
