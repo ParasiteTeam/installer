@@ -1,8 +1,15 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-if [ "$(id -u)" != "0" ]; then
-  echo "This script must be run as root" 1>&2
-  exit 1
+if [ "$EUID" -ne 0 ]; then
+    printf "\nPlease run this script as root.\n\n"
+    exit
+fi
+
+if [[ $(/usr/bin/csrutil status) == *"disabled"* ]]; then
+    printf "\nSIP is disabled. Please don't re-enable it, otherwise Parasite won't work.\n\n"
+else
+    printf "\nSIP is enabled. Please disable SIP to install Parasite.\n\n"
+    exit
 fi
 
 TEAM="ParasiteTeam"
@@ -41,6 +48,5 @@ chown root:wheel "$LA_DEST/$LA"
 mkdir -p "/Library/Parasite/Extensions"
 
 kextload "$KEXT_DEST/$KEXT"
-
 
 rm -r $TMP_DIR
