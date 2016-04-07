@@ -5,40 +5,51 @@ if [ "$EUID" -ne 0 ]; then
     exit
 fi
 
-TEAM="ParasiteTeam"
-REPOS=("kext" "library")
+REPOS=("kext" "library" "Crucible")
 TMP_DIR="/tmp/parasite"
 
-FRAMEWORK="ParasiteRuntime.framework"
-FRAMEWORK_DEST="/Library/Frameworks"
-KEXT="Parasite.kext"
-KEXT_DEST="/Library/Extensions"
 LA="com.shinvou.parasite.loader.plist"
 LA_DEST="/Library/LaunchDaemons"
 
+KEXT="Parasite.kext"
+KEXT_DEST="/Library/Extensions"
+
+FRAMEWORK="ParasiteRuntime.framework"
+FRAMEWORK_DEST="/Library/Frameworks"
+
+CRUCIBLE="Crucible.bundle"
+CRUCIBLE_DEST="/Library/Parasite/Extensions"
+
+mkdir -p "/Library/Parasite/Crucible"
+mkdir -p "/Library/Parasite/Extensions"
 mkdir -p $TMP_DIR
+
 cd $TMP_DIR
 
 for REPO in "${REPOS[@]}"; do
-  LINK=$(curl -s https://api.github.com/repos/$TEAM/$REPO/releases/latest | grep 'browser_' | cut -d\" -f4)
-  echo "Downloading...$REPO"
-  curl -sL $LINK > "$REPO.zip"
-  echo "Unpacking...$REPO"
-  unzip -qq "$REPO.zip"
-  rm "$REPO.zip"
+    LINK=$(curl -s https://api.github.com/repos/ParasiteTeam/$REPO/releases/latest | grep 'browser_' | cut -d\" -f4)
+    printf "Downloading $REPO ...\n"
+    curl -sL $LINK > "$REPO.zip"
+    printf "Done.\n"
+    printf "Unpacking $REPO ...\n"
+    unzip -qq "$REPO.zip"
+    printf "Done.\n"
+    rm "$REPO.zip"
 done
 
-mv $FRAMEWORK "$FRAMEWORK_DEST/$FRAMEWORK"
-chmod -R 755 "$FRAMEWORK_DEST/$FRAMEWORK"
-chown -R root:wheel "$FRAMEWORK_DEST/$FRAMEWORK"
-mv $KEXT "$KEXT_DEST/$KEXT"
-chmod -R 755 "$KEXT_DEST/$KEXT"
-chown -R root:wheel "$KEXT_DEST/$KEXT"
 mv $LA "$LA_DEST/$LA"
 chmod 644 "$LA_DEST/$LA"
 chown root:wheel "$LA_DEST/$LA"
 
-mkdir -p "/Library/Parasite/Extensions"
+mv $KEXT "$KEXT_DEST/$KEXT"
+chmod -R 755 "$KEXT_DEST/$KEXT"
+chown -R root:wheel "$KEXT_DEST/$KEXT"
+
+mv $FRAMEWORK "$FRAMEWORK_DEST/$FRAMEWORK"
+chmod -R 755 "$FRAMEWORK_DEST/$FRAMEWORK"
+chown -R root:wheel "$FRAMEWORK_DEST/$FRAMEWORK"
+
+mv $CRUCIBLE "$CRUCIBLE_DEST/$CRUCIBLE"
 
 EXIT_STATUS=$(kextload "$KEXT_DEST/$KEXT" 2>&1)
 
@@ -48,4 +59,4 @@ else
     printf "\nThe kext couldn't be loaded. Please make sure you either disabled kext validation (csrutil enable --without kext) or completely disabled SIP (csrutil disable).\n\n"
 fi
 
-rm -r $TMP_DIR
+rm -rf $TMP_DIR
