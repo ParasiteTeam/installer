@@ -5,13 +5,6 @@ if [ "$EUID" -ne 0 ]; then
     exit
 fi
 
-if [[ $(/usr/bin/csrutil status) == *"disabled"* ]]; then
-    printf "\nSIP is disabled. Please don't re-enable it, otherwise Parasite won't work.\n\n"
-else
-    printf "\nSIP is enabled. Please disable SIP to install Parasite.\n\n"
-    exit
-fi
-
 TEAM="ParasiteTeam"
 REPOS=("kext" "library")
 TMP_DIR="/tmp/parasite"
@@ -47,6 +40,12 @@ chown root:wheel "$LA_DEST/$LA"
 
 mkdir -p "/Library/Parasite/Extensions"
 
-kextload "$KEXT_DEST/$KEXT"
+EXIT_STATUS=$(kextload "$KEXT_DEST/$KEXT" 2>&1)
+
+if [ -z "$EXIT_STATUS" ]; then
+    printf "\nSuccessfully installed Parasite.\n"
+else
+    printf "\nThe kext couldn't be loaded. Please make sure you either disabled kext validation (csrutil enable --without kext) or completely disabled SIP (csrutil disable).\n\n"
+fi
 
 rm -r $TMP_DIR
