@@ -8,9 +8,6 @@ fi
 REPOS=("kext" "library" "Crucible")
 TMP_DIR="/tmp/parasite"
 
-LA="com.shinvou.parasite.loader.plist"
-LA_DEST="/Library/LaunchDaemons"
-
 KEXT="Parasite.kext"
 KEXT_DEST="/Library/Extensions"
 
@@ -36,10 +33,6 @@ for REPO in "${REPOS[@]}"; do
     printf "Done.\n"
     rm "$REPO.zip"
 done
-
-mv $LA "$LA_DEST/$LA"
-chmod 644 "$LA_DEST/$LA"
-chown root:wheel "$LA_DEST/$LA"
 
 mv $KEXT "$KEXT_DEST/$KEXT"
 chmod -R 755 "$KEXT_DEST/$KEXT"
