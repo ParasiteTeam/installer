@@ -1,5 +1,5 @@
 # installer
-## Install Parasite with one command
+## Install Parasite with two commands
 
 To install Parasite, just paste:
 
